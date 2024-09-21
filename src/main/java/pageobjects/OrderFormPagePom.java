@@ -5,34 +5,40 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import homepageloc.HomePage;
+
 
 import java.time.Duration;
 
 public class OrderFormPagePom {
 
     private WebDriver driver;
-    private HomePage homePage;
     private WebDriverWait wait;
 
-    public OrderFormPagePom(WebDriver driver, HomePage homePage) {
+    // Приватные локаторы для элементов формы заказа
+    private By fieldName = By.xpath("//input[@placeholder='* Имя']");
+    private By fieldLastName = By.xpath("//input[@placeholder='* Фамилия']");
+    private By fieldAddress = By.xpath("//input[@placeholder='* Адрес: куда привезти заказ']");
+    private By fieldStation = By.xpath("//input[@class='select-search__input']");
+    private By fieldPhone = By.xpath("//input[@placeholder='* Телефон: на него позвонит курьер']");
+    private By buttonNext = By.xpath("//button[text()='Далее']");
+
+    public OrderFormPagePom(WebDriver driver) {
         this.driver = driver;
-        this.homePage = new HomePage();
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Установка времени ожидания в 10 секунд
     }
 
     // Метод для заполнения формы заказа
     public void fillOrderForm(String name, String lastName, String address, String station, String phone) {
-        driver.findElement(homePage.fieldName).sendKeys(name);
-        driver.findElement(homePage.fieldLastName).sendKeys(lastName);
-        driver.findElement(homePage.fieldAddress).sendKeys(address);
+        driver.findElement(fieldName).sendKeys(name);
+        driver.findElement(fieldLastName).sendKeys(lastName);
+        driver.findElement(fieldAddress).sendKeys(address);
         selectStation(station);  // Выбор станции
-        driver.findElement(homePage.fieldPhone).sendKeys(phone);
+        driver.findElement(fieldPhone).sendKeys(phone);
     }
 
     // Метод для выбора станции из предложенного списка
     private void selectStation(String station) {
-        WebElement stationField = driver.findElement(homePage.fieldStation);
+        WebElement stationField = driver.findElement(fieldStation);
         stationField.click(); // Клик по полю, чтобы открыть список
 
         // Вводим станцию в поле "select-search__value"
@@ -48,7 +54,6 @@ public class OrderFormPagePom {
 
     // Метод для клика на кнопку "Далее"
     public void clickNextButton() {
-        driver.findElement(homePage.buttonNext).click();
+        driver.findElement(buttonNext).click();
     }
 }
-

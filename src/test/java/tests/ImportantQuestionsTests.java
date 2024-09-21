@@ -3,10 +3,13 @@ package tests;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import pageobjects.HomePagePom;
-import homepageloc.HomePage;
 
 import static org.junit.Assert.assertEquals;
 
@@ -14,7 +17,6 @@ public class ImportantQuestionsTests {
 
     private WebDriver driver;
     private HomePagePom homePagePom;
-    private HomePage homePageLocators;
 
     // Эталонные ответы
     private final String EXPECTED_ANSWER_HOW_MUCH = "Сутки — 400 рублей. Оплата курьеру — наличными или картой.";
@@ -29,8 +31,7 @@ public class ImportantQuestionsTests {
     @Before
     public void setUp() {
         driver = new ChromeDriver();
-        homePageLocators = new HomePage();
-        homePagePom = new HomePagePom(driver, homePageLocators);
+        homePagePom = new HomePagePom(driver);
     }
 
     @After
@@ -40,49 +41,88 @@ public class ImportantQuestionsTests {
         }
     }
 
-    @Test
-    public void testImportantQuestions() throws InterruptedException {
+    private void scrollToElementAndClick(By locator) throws InterruptedException {
+        WebElement element = homePagePom.wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
+        Thread.sleep(1000); // Задержка в 1 секунду
+        element.click();
+    }
+
+    private void testQuestion(By questionLocator, String expectedAnswer, String getAnswerMethod) throws InterruptedException {
         driver.get("https://qa-scooter.praktikum-services.ru/");
         homePagePom.clickCookieButton(); // Клик по кнопке куки
+        scrollToElementAndClick(questionLocator);
+        String actualAnswer;
 
-        // Проверка вопроса "Сколько стоит аренда"
-        homePagePom.clickQuestionHowMuch();
-        String answerHowMuch = homePagePom.getAnswerHowMuch();
-        assertEquals(EXPECTED_ANSWER_HOW_MUCH, answerHowMuch);
+        switch (getAnswerMethod) {
+            case "howMuch":
+                actualAnswer = homePagePom.getAnswerHowMuch();
+                break;
+            case "several":
+                actualAnswer = homePagePom.getAnswerSeveral();
+                break;
+            case "rentTime":
+                actualAnswer = homePagePom.getAnswerRentTime();
+                break;
+            case "orderToday":
+                actualAnswer = homePagePom.getAnswerOrderToday();
+                break;
+            case "extendReturn":
+                actualAnswer = homePagePom.getAnswerExtendReturn();
+                break;
+            case "charger":
+                actualAnswer = homePagePom.getAnswerCharger();
+                break;
+            case "orderCancel":
+                actualAnswer = homePagePom.getAnswerOrderCancel();
+                break;
+            case "mkadLife":
+                actualAnswer = homePagePom.getAnswerMkadLife();
+                break;
+            default:
+                actualAnswer = "";
+        }
 
-        // Проверка вопроса "Можно ли заказать несколько самокатов сразу?"
-        homePagePom.clickQuestionSeveral();
-        String answerSeveral = homePagePom.getAnswerSeveral();
-        assertEquals(EXPECTED_ANSWER_SEVERAL, answerSeveral);
+        assertEquals(expectedAnswer, actualAnswer);
+    }
 
-        // Проверка вопроса "На какой срок можно арендовать самокат?"
-        homePagePom.clickQuestionRentTime();
-        String answerRentTime = homePagePom.getAnswerRentTime();
-        assertEquals(EXPECTED_ANSWER_RENT_TIME, answerRentTime);
+    @Test
+    public void testHowMuchQuestion() throws InterruptedException {
+        testQuestion(homePagePom.getQuestionHowMuch(), EXPECTED_ANSWER_HOW_MUCH, "howMuch");
+    }
 
-        // Проверка вопроса "Можно ли заказать самокат сегодня?"
-        homePagePom.clickQuestionOrderToday();
-        String answerOrderToday = homePagePom.getAnswerOrderToday();
-        assertEquals(EXPECTED_ANSWER_ORDER_TODAY, answerOrderToday);
+    @Test
+    public void testSeveralQuestion() throws InterruptedException {
+        testQuestion(homePagePom.getQuestionSeveral(), EXPECTED_ANSWER_SEVERAL, "several");
+    }
 
-        // Проверка вопроса "Можно ли продлить аренду?"
-        homePagePom.clickQuestionExtendReturn();
-        String answerExtendReturn = homePagePom.getAnswerExtendReturn();
-        assertEquals(EXPECTED_ANSWER_EXTEND_RETURN, answerExtendReturn);
+    @Test
+    public void testRentTimeQuestion() throws InterruptedException {
+        testQuestion(homePagePom.getQuestionRentTime(), EXPECTED_ANSWER_RENT_TIME, "rentTime");
+    }
 
-        // Проверка вопроса "Нужно ли заряжать самокат?"
-        homePagePom.clickQuestionCharger();
-        String answerCharger = homePagePom.getAnswerCharger();
-        assertEquals(EXPECTED_ANSWER_CHARGER, answerCharger);
+    @Test
+    public void testOrderTodayQuestion() throws InterruptedException {
+        testQuestion(homePagePom.getQuestionOrderToday(), EXPECTED_ANSWER_ORDER_TODAY, "orderToday");
+    }
 
-        // Проверка вопроса "Можно ли отменить заказ?"
-        homePagePom.clickQuestionOrderCancel();
-        String answerOrderCancel = homePagePom.getAnswerOrderCancel();
-        assertEquals(EXPECTED_ANSWER_ORDER_CANCEL, answerOrderCancel);
+    @Test
+    public void testExtendReturnQuestion() throws InterruptedException {
+        testQuestion(homePagePom.getQuestionExtendReturn(), EXPECTED_ANSWER_EXTEND_RETURN, "extendReturn");
+    }
 
-        // Проверка вопроса "Как самокат ведет себя за МКАД?"
-        homePagePom.clickQuestionMkadLife();
-        String answerMkadLife = homePagePom.getAnswerMkadLife();
-        assertEquals(EXPECTED_ANSWER_MKAD_LIFE, answerMkadLife);
+    @Test
+    public void testChargerQuestion() throws InterruptedException {
+        testQuestion(homePagePom.getQuestionCharger(), EXPECTED_ANSWER_CHARGER, "charger");
+    }
+
+    @Test
+    public void testOrderCancelQuestion() throws InterruptedException {
+        testQuestion(homePagePom.getQuestionOrderCancel(), EXPECTED_ANSWER_ORDER_CANCEL, "orderCancel");
+    }
+
+    @Test
+    public void testMkadLifeQuestion() throws InterruptedException {
+        testQuestion(homePagePom.getQuestionMkadLife(), EXPECTED_ANSWER_MKAD_LIFE, "mkadLife");
     }
 }

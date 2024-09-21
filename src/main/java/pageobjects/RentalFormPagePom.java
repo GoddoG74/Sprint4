@@ -2,7 +2,6 @@ package pageobjects;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import homepageloc.HomePage;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -12,29 +11,32 @@ import java.time.Duration;
 public class RentalFormPagePom {
 
     private WebDriver driver;
-    private HomePage homePage;
     private WebDriverWait wait;
 
-    public RentalFormPagePom(WebDriver driver, HomePage homePage) {
+    // Приватные локаторы
+    private By rentalTerm = By.xpath("//div[contains(@class,'Dropdown-placeholder') and text()='* Срок аренды']");
+    private By fieldDelivery = By.xpath("//input[@placeholder='* Когда привезти самокат']");
+    private By orderButtonFormPage = By.xpath("//div[contains(@class, 'Order_Buttons')]//button[contains(text(), 'Заказать')]");
+    private By todayDate = By.xpath("//div[contains(@class,'react-datepicker__day--today')]");
+
+    public RentalFormPagePom(WebDriver driver) {
         this.driver = driver;
-        this.homePage = homePage;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     // Метод для выбора даты доставки
     public void selectDeliveryDate() {
-        WebElement deliveryDateField = driver.findElement(homePage.fieldDelivery);
+        WebElement deliveryDateField = driver.findElement(fieldDelivery);
         deliveryDateField.click(); // Клик по полю даты
 
         // Ожидание появления и выбор сегодняшней даты
-        WebElement todayDateElement = wait.until(ExpectedConditions.visibilityOfElementLocated(homePage.todayDate));
+        WebElement todayDateElement = wait.until(ExpectedConditions.visibilityOfElementLocated(todayDate));
         todayDateElement.click();
     }
 
-
     // Метод для установки срока аренды
     public void setRentalTerm() {
-        WebElement rentalTermField = driver.findElement(homePage.rentalTerm);
+        WebElement rentalTermField = driver.findElement(rentalTerm);
         rentalTermField.click(); // Клик по полю срока аренды
 
         // Выбор первого варианта в выпадающем списке
@@ -42,10 +44,7 @@ public class RentalFormPagePom {
         firstOption.click();
     }
 
-
     public void clickOrderButtonFormPage() {
-        driver.findElement(homePage.orderButtonFormPage).click();
+        driver.findElement(orderButtonFormPage).click();
     }
-
-
 }

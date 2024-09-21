@@ -12,20 +12,18 @@ public class OrderCompletedPagePom {
     private WebDriver driver;
     private WebDriverWait wait;
 
+    // Приватный локатор
+    private By orderCompletedLocator = By.xpath("//div[contains(text(),'Заказ оформлен')]");
+
     // Конструктор
     public OrderCompletedPagePom(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Установка времени ожидания в 10 секунд
     }
 
-    // Метод для получения локатора успешного заказа
-    public By getOrderCompletedLocator() {
-        return By.xpath("//div[contains(text(),'Заказ оформлен')]");
-    }
-
-    // Метод для проверки успешного завершения заказа
+    // Метод для проверки успешного завершения заказа (не изменен)
     public boolean isOrderCompleted() {
-        WebElement orderCompletedMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(getOrderCompletedLocator()));
+        WebElement orderCompletedMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(orderCompletedLocator));
         return orderCompletedMessage.isDisplayed();
     }
 }

@@ -1,5 +1,6 @@
 package tests;
 
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -7,12 +8,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pageobjects.HomePagePom;
-import pageobjects.OrderFormPagePom;
-import pageobjects.RentalFormPagePom;
-import pageobjects.ConfirmationPagePom;
-import pageobjects.OrderCompletedPagePom;
-import homepageloc.HomePage;
+import pageobjects.*;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -52,72 +48,67 @@ public class OrderTests {
         });
     }
 
+    private void initializePageObjects() {
+        homePagePom = new HomePagePom(driver);
+        orderFormPagePom = new OrderFormPagePom(driver);
+        rentalFormPagePom = new RentalFormPagePom(driver);
+        confirmationPagePom = new ConfirmationPagePom(driver);
+        orderCompletedPagePom = new OrderCompletedPagePom(driver);
+    }
+
     @Test
     public void testOrderButtonHeader() {
         driver = new ChromeDriver();
-        HomePage homePage = new HomePage();
-        homePagePom = new HomePagePom(driver, homePage);
-        orderFormPagePom = new OrderFormPagePom(driver, homePage);
-        rentalFormPagePom = new RentalFormPagePom(driver, homePage);
-        confirmationPagePom = new ConfirmationPagePom(driver, homePage);
-        orderCompletedPagePom = new OrderCompletedPagePom(driver);
+        initializePageObjects();
 
-        try {
-            driver.get("https://qa-scooter.praktikum-services.ru/");
-            homePagePom.clickCookieButton(); // Клик по кнопке куки
+        driver.get("https://qa-scooter.praktikum-services.ru/");
+        homePagePom.clickCookieButton(); // Клик по кнопке куки
+        homePagePom.clickOrderButtonHeader(); // Клик по кнопке 'Заказать' вверху страницы
 
-            homePagePom.clickOrderButtonHeader(); // Клик по кнопке 'Заказать' вверху страницы
+        orderFormPagePom.fillOrderForm(name, lastName, address, station, phone); // Заполнение формы 'Для кого самокат'
+        orderFormPagePom.clickNextButton(); // Переход к форме аренды
 
-            orderFormPagePom.fillOrderForm(name, lastName, address, station, phone); // Заполнение формы 'Для кого самокат'
-            orderFormPagePom.clickNextButton(); // Переход к форме аренды
+        rentalFormPagePom.selectDeliveryDate(); // Выбор даты доставки
+        rentalFormPagePom.setRentalTerm(); // Установка срока аренды
+        rentalFormPagePom.clickOrderButtonFormPage(); // Нажатие кнопки 'Заказать' на странице аренды
 
-            rentalFormPagePom.selectDeliveryDate(); // Выбор даты доставки
-            rentalFormPagePom.setRentalTerm(); // Установка срока аренды
-            rentalFormPagePom.clickOrderButtonFormPage(); // Нажатие кнопки 'Заказать' на странице аренды
+        // Ожидание всплывающего окна и нажатие 'Да'
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.elementToBeClickable(confirmationPagePom.getConfirmButtonLocator())).click();
 
-            // Ожидание всплывающего окна и нажатие 'Да'
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.elementToBeClickable(confirmationPagePom.getConfirmButtonLocator())).click();
-
-            // Ожидание и проверка успешного заказа
-            boolean isOrderCompleted = orderCompletedPagePom.isOrderCompleted();
-            assertTrue("Окно успешного заказа не появилось", isOrderCompleted);
-        } finally {
-            driver.quit();
-        }
+        // Ожидание и проверка успешного заказа
+        boolean isOrderCompleted = orderCompletedPagePom.isOrderCompleted();
+        assertTrue("Окно успешного заказа не появилось", isOrderCompleted);
     }
 
     @Test
     public void testOrderButtonCenter() {
         driver = new ChromeDriver();
-        HomePage homePage = new HomePage();
-        homePagePom = new HomePagePom(driver, homePage);
-        orderFormPagePom = new OrderFormPagePom(driver, homePage);
-        rentalFormPagePom = new RentalFormPagePom(driver, homePage);
-        confirmationPagePom = new ConfirmationPagePom(driver, homePage);
-        orderCompletedPagePom = new OrderCompletedPagePom(driver);
+        initializePageObjects();
 
-        try {
-            driver.get("https://qa-scooter.praktikum-services.ru/");
-            homePagePom.clickCookieButton(); // Клик по кнопке куки
+        driver.get("https://qa-scooter.praktikum-services.ru/");
+        homePagePom.clickCookieButton(); // Клик по кнопке куки
+        homePagePom.clickOrderButtonCenter(); // Клик по кнопке 'Заказать' в центре страницы
 
-            homePagePom.clickOrderButtonCenter(); // Клик по кнопке 'Заказать' в центре страницы
+        orderFormPagePom.fillOrderForm(name, lastName, address, station, phone); // Заполнение формы 'Для кого самокат'
+        orderFormPagePom.clickNextButton(); // Переход к форме аренды
 
-            orderFormPagePom.fillOrderForm(name, lastName, address, station, phone); // Заполнение формы 'Для кого самокат'
-            orderFormPagePom.clickNextButton(); // Переход к форме аренды
+        rentalFormPagePom.selectDeliveryDate(); // Выбор даты доставки
+        rentalFormPagePom.setRentalTerm(); // Установка срока аренды
+        rentalFormPagePom.clickOrderButtonFormPage(); // Нажатие кнопки 'Заказать' на странице аренды
 
-            rentalFormPagePom.selectDeliveryDate(); // Выбор даты доставки
-            rentalFormPagePom.setRentalTerm(); // Установка срока аренды
-            rentalFormPagePom.clickOrderButtonFormPage(); // Нажатие кнопки 'Заказать' на странице аренды
+        // Ожидание всплывающего окна и нажатие 'Да'
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.elementToBeClickable(confirmationPagePom.getConfirmButtonLocator())).click();
 
-            // Ожидание всплывающего окна и нажатие 'Да'
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.elementToBeClickable(confirmationPagePom.getConfirmButtonLocator())).click();
+        // Ожидание и проверка успешного заказа
+        boolean isOrderCompleted = orderCompletedPagePom.isOrderCompleted();
+        assertTrue("Окно успешного заказа не появилось", isOrderCompleted);
+    }
 
-            // Ожидание и проверка успешного заказа
-            boolean isOrderCompleted = orderCompletedPagePom.isOrderCompleted();
-            assertTrue("Окно успешного заказа не появилось", isOrderCompleted);
-        } finally {
+    @After
+    public void tearDown() {
+        if (driver != null) {
             driver.quit();
         }
     }
